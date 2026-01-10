@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Tracker | Login</title>
+  <link rel="stylesheet" href="../styles.css"> 
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
+    <h2 class="text-2xl font-bold mb-6 text-center text-indigo-600">Welcome Back!</h2>
+    <p class="text-gray-500 text-center mb-6">Log in to track your mood.</p>
+
+    <form id="loginForm">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+        <input type="email" id="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="user@example.com" required>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
+        <input type="password" id="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="********" required>
+      </div>
+
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
+        Log In
+      </button>
+    </form>
+
+    <div class="mt-4 text-center">
+      <a href="signup.html" class="text-sm text-indigo-500 hover:text-indigo-800">Haven't got an account? Sign up.</a>
+    </div>
+  </div>
+
+  <script>
+    // VERIFICARE INITIALA: Dacă ești logat, mergi direct la Dashboard
+    document.addEventListener("DOMContentLoaded", () => {
+        if(localStorage.getItem('mood_user_token')) {
+            window.location.href = "../index.html";
+        }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Curățăm orice sesiune veche
+                localStorage.clear();
+                
+                // FOLOSIM LOCALSTORAGE (pentru a păstra logarea la refresh)
+                if (data.token) {
+                    localStorage.setItem('mood_user_token', data.token);
+                }
+
+                if (data.user) {
+                    localStorage.setItem('mood_username', data.user.name);
+                    localStorage.setItem('mood_user_avatar', data.user.avatarURL || '');
+                }
+
+                // Redirect fără alertă (opțional poți lăsa alerta)
+                window.location.href = "../index.html"; 
+            } else {
+                alert("Eroare: " + data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Nu mă pot conecta la server! (Verifică dacă serverul e pornit)");
+        }
+    });
+  </script>
+
+</body>
+</html>
