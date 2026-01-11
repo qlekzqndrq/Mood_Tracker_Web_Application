@@ -562,3 +562,13 @@ body {
     color: #57577B !important; /* Culoarea textului tău */
     font-weight: 600 !important;
 }
+
+/* Ascunde iconița G colorată */
+.goog-te-gadget-icon {
+    display: none !important;
+}
+
+/* Ajustează textul să fie centrat după ce dispare iconița */
+.goog-te-gadget-simple {
+    padding-left: 8px !important;
+}
