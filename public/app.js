@@ -150,18 +150,31 @@ async function checkTodayStatus() {
 
 function showEmptyHero() {
     const heroEmpty = document.getElementById('hero-empty');
-    if (heroEmpty) heroEmpty.style.display = 'block';
+    // Dacă avem containerul, îl afișăm (ca să se vadă textele)
+    if (heroEmpty) heroEmpty.style.display = 'flex';
+
     const heroLogged = document.getElementById('hero-logged');
     if (heroLogged) heroLogged.style.display = 'none';
+
+    // Arată butonul când nu ai logat mood-ul
+    const logBtn = document.getElementById('logMoodBtn');
+    if (logBtn) logBtn.style.display = 'block';
 }
 
 function showLoggedHero(log) {
+    // 1. NU mai ascundem hero-empty, îl lăsăm 'block' ca să rămână textele!
     const heroEmpty = document.getElementById('hero-empty');
-    if (heroEmpty) heroEmpty.style.display = 'none';
+    if (heroEmpty) heroEmpty.style.display = 'flex'; 
 
+    // 2. Ascundem DOAR butonul specific
+    const logBtn = document.getElementById('logMoodBtn');
+    if (logBtn) logBtn.style.display = 'none'; 
+
+    // 3. Afișăm cardul cu rezultate
     const heroLogged = document.getElementById('hero-logged');
     if (heroLogged) heroLogged.style.display = 'grid';
 
+    // --- Populare date (Emoji, Text, etc.) ---
     const moodMap = {
         "1": { text: "Very Sad", emoji: "😭" },
         "2": { text: "Sad", emoji: "☹️" },
@@ -177,17 +190,14 @@ function showLoggedHero(log) {
     document.getElementById('today-sleep').innerText = log.sleepHours + " hours";
     document.getElementById('today-reflection').innerText = log.journalEntry || "No reflection.";
 
-    // --- AICI ESTE MODIFICAREA PENTRU TAG-URI ---
     const tagsContainer = document.getElementById('today-tags');
     if (tagsContainer) {
-        tagsContainer.innerHTML = ''; // Curățăm conținutul vechi
-
-        // Verificăm dacă avem tag-uri salvate (feelings)
+        tagsContainer.innerHTML = '';
         if (log.feelings && log.feelings.length > 0) {
             log.feelings.forEach(tag => {
                 const span = document.createElement('span');
-                span.className = 'hashtag';
-                span.innerText = `#${tag}`; // Punem # în față
+                span.className = 'hashtag'; // Sau 'tag-chip' cum aveai înainte
+                span.innerText = `#${tag}`;
                 tagsContainer.appendChild(span);
             });
         }
@@ -217,9 +227,22 @@ async function loadStats() {
         const res = await fetch(`${API_URL}/logs/stats`, {
             headers: getAuthHeaders()
         });
+
+        // --- 👇 COD NOU: Verificare Token Expirat 👇 ---
+        if (res.status === 401) {
+            console.warn("Token expirat sau server restartat. Delogare...");
+            logout(); // Te trimite la Login ca să îți iei un token nou
+            return;
+        }
+        // ------------------------------------------------
+
         if (!res.ok) return;
 
         const data = await res.json();
+
+        // ... restul codului tău rămâne la fel ...
+        console.log("DATE PRIMITE DE LA SERVER (STATS):", data);
+
         const moodCard = document.getElementById('mood-card-container');
         const sleepCard = document.getElementById('sleep-card-container');
 
@@ -228,7 +251,9 @@ async function loadStats() {
         moodCard.className = 'stat-card';
         sleepCard.className = 'stat-card';
 
-        if (data.hasEnoughData === false) {
+        // Verificăm dacă avem date "recente"
+        if (!data.recent || data.hasEnoughData === false) {
+             // ... cod afișare empty state ...
             document.getElementById('mood-empty').style.display = 'block';
             document.getElementById('sleep-empty').style.display = 'block';
             document.getElementById('mood-full').style.display = 'none';
@@ -236,6 +261,7 @@ async function loadStats() {
             moodCard.classList.add('mood-gradient');
             sleepCard.classList.add('sleep-gradient');
         } else {
+             // ... cod afișare date ...
             document.getElementById('mood-empty').style.display = 'none';
             document.getElementById('sleep-empty').style.display = 'none';
             document.getElementById('mood-full').style.display = 'block';
@@ -247,21 +273,26 @@ async function loadStats() {
 
             const moodNames = ["", "Very Sad", "Sad", "Neutral", "Happy", "Very Happy"];
             
-            // Reparăm afișarea valorilor
             document.getElementById('stats-mood-val').innerText = moodNames[avgMood] || "Neutral";
             document.getElementById('stats-sleep-val').innerText = data.recent.sleep + " Hours";
 
-            // Luăm textul direct din obiectul comparison trimis de serverul tău
             const moodCompEl = document.getElementById('stats-mood-comp');
             const sleepCompEl = document.getElementById('stats-sleep-comp');
+            
+            let moodText = "Collecting more history...";
+            let sleepText = "Collecting more history...";
 
-            if (data.comparison) {
-                if (moodCompEl) moodCompEl.innerText = data.comparison.mood.text;
-                if (sleepCompEl) sleepCompEl.innerText = data.comparison.sleep.text;
-            } else {
-                if (moodCompEl) moodCompEl.innerText = "Collecting more history...";
-                if (sleepCompEl) sleepCompEl.innerText = "Collecting more history...";
+            if (data.recent && data.previous) {
+                moodText = getComparisonText(data.recent.mood, data.previous.mood, 'mood');
+                sleepText = getComparisonText(data.recent.sleep, data.previous.sleep, 'sleep');
+            } 
+            else if (data.comparison) {
+                moodText = data.comparison.mood.text;
+                sleepText = data.comparison.sleep.text;
             }
+
+            if (moodCompEl) moodCompEl.innerText = moodText;
+            if (sleepCompEl) sleepCompEl.innerText = sleepText;
         }
     } catch (e) {
         console.error("Stats err:", e);
@@ -274,6 +305,15 @@ async function loadChart() {
         const res = await fetch(`${API_URL}/logs/recent`, {
             headers: getAuthHeaders()
         });
+
+        // --- 👇 COD NOU: Protecție Logout 👇 ---
+        if (res.status === 401) {
+            console.warn("Token expirat la încărcarea graficului. Delogare...");
+            logout(); 
+            return;
+        }
+        // ---------------------------------------
+
         if (!res.ok) return;
 
         const logs = await res.json();
@@ -305,12 +345,11 @@ async function loadChart() {
             window.myMoodChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    // AICI MODIFICĂM: Pregătim datele (Lună și Zi separate)
                     labels: logsRev.map(l => {
                         const d = new Date(l.date);
-                        const month = d.toLocaleString('en-US', { month: 'long' }); // ex: April
-                        const day = d.getDate(); // ex: 16
-                        return [month, day]; // Le trimitem ca listă
+                        const month = d.toLocaleString('en-US', { month: 'long' });
+                        const day = d.getDate();
+                        return [month, day];
                     }),
                     datasets: [{
                         label: 'Sleep',
@@ -337,57 +376,40 @@ async function loadChart() {
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: {
-                        padding: {
-                            bottom: 30 // Facem loc jos pentru textul nostru
-                        }
+                        padding: { bottom: 30 }
                     },
-                    // --- ÎNLOCUIEȘTE BLOCUL 'plugins' DIN INTERIORUL OPTIUNILOR CHART-ULUI ---
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             enabled: true,
-                            backgroundColor: '#21214D', // Fundal închis (Navy)
-                            titleColor: '#FFFFFF', // Titlu alb
-                            bodyColor: '#E0E6FA', // Text corp gri-albăstrui
-                            padding: 12, // Spațiu interior mai mare
-                            cornerRadius: 12, // Colțuri rotunjite
-                            displayColors: false, // Pătrățelul de culoare din stânga
-                            boxPadding: 6, // Spațiu între pătrățel și text
-
-                            // AICI E TRUCUL PENTRU ALINIERE
-                            bodyAlign: 'left', // Forțează textul la stânga
+                            backgroundColor: '#21214D',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#E0E6FA',
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: false,
+                            boxPadding: 6,
+                            bodyAlign: 'left',
                             titleAlign: 'left',
-
                             callbacks: {
-                                // Titlul (Ex: 🤩 Very Happy)
                                 title: function(context) {
                                     const idx = context[0].dataIndex;
                                     const extra = context[0].dataset.extraData[idx];
                                     return `${moodEmojis[extra.moodScore]} ${moodTexts[extra.moodScore]}`;
                                 },
-                                // Corpul (Liniile cu Sleep, Reflection, Tags)
                                 label: function(context) {
                                     const idx = context.dataIndex;
                                     const extra = context.dataset.extraData[idx];
-
-                                    // Construim liniile
-                                    let lines = [
-                                        `💤 Sleep: ${extra.realSleep} hours`
-                                    ];
-
-                                    // Reflection (tăiată dacă e prea lungă)
+                                    let lines = [`💤 Sleep: ${extra.realSleep} hours`];
                                     if (extra.reflection) {
                                         const shortRef = extra.reflection.length > 30 ?
                                             extra.reflection.substring(0, 30) + '...' :
                                             extra.reflection;
                                         lines.push(`📝 Reflection: ${shortRef}`);
                                     }
-
-                                    // Tags
                                     if (extra.tags && extra.tags.length > 0) {
                                         lines.push(`🏷️ Tags: ${extra.tags.join(', ')}`);
                                     }
-
                                     return lines;
                                 }
                             }
@@ -401,10 +423,8 @@ async function loadChart() {
                             grid: {
                                 drawBorder: false,
                                 color: (context) => {
-                                    if (context.tick.value === 5) {
-                                        return 'transparent';
-                                    }
-                                    return '#E5E5EF'
+                                    if (context.tick.value === 5) return 'transparent';
+                                    return '#E5E5EF';
                                 }
                             },
                             ticks: {
@@ -423,13 +443,10 @@ async function loadChart() {
                         },
                         x: {
                             grid: { display: false },
-                            ticks: {
-                                display: false // ASCUNDEM ETICHETELE STANDARD
-                            }
+                            ticks: { display: false }
                         }
                     }
                 },
-                // --- PLUGIN CUSTOM PENTRU TEXT BOLD ---
                 plugins: [{
                     id: 'customLabels',
                     afterDraw: function(chart) {
@@ -442,15 +459,13 @@ async function loadChart() {
                             const month = label[0];
                             const day = label[1];
 
-                            // 1. Desenăm LUNA (Normal, Gri)
                             ctx.fillStyle = '#9393B7';
-                            ctx.font = '12px sans-serif'; // Font normal
+                            ctx.font = '12px sans-serif';
                             ctx.textAlign = 'center';
                             ctx.fillText(month, x, yPos + 20);
 
-                            // 2. Desenăm ZIUA (Bold, Albastru închis)
                             ctx.fillStyle = '#9393B7';
-                            ctx.font = 'bold 15px sans-serif'; // <--- AICI E BOLD-UL
+                            ctx.font = 'bold 15px sans-serif';
                             ctx.fillText(day, x, yPos + 38);
                         });
                     }
@@ -692,16 +707,19 @@ if (settingsForm) {
 
 // textul dinamic ("Same as previous", "Better than usual")
 function getComparisonText(currentVal, previousVal, type) {
-    // Dacă nu există date vechi, afișăm textul de așteptare
+    // Dacă nu avem istoric anterior valid, cerem date
     if (previousVal === null || previousVal === undefined) {
         return "Collecting more history...";
     }
 
-    // Calculăm diferența
+    // Calculăm diferența cu o singură zecimală
     let diff = currentVal - previousVal;
     diff = Math.round(diff * 10) / 10;
 
-    if (diff === 0) return "Same as the previous 5 check-ins";
+    // --- FIX LOGIC: Tratăm 0 ca "Stable" nu ca eroare ---
+    if (diff === 0) {
+        return "Stable (same as previous)";
+    }
 
     // Text pentru MOOD
     if (type === 'mood') {
@@ -711,7 +729,8 @@ function getComparisonText(currentVal, previousVal, type) {
 
     // Text pentru SLEEP
     if (type === 'sleep') {
-        if (diff > 0) return `+${diff}h vs previous check-ins`;
-        return `${diff}h vs previous check-ins`;
+        // Adăugăm semnul + explicit dacă e pozitiv
+        const sign = diff > 0 ? "+" : ""; 
+        return `${sign}${diff}h vs previous check-ins`;
     }
 }

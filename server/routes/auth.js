@@ -1,20 +1,19 @@
 const router = require('express').Router();
-const User = require('../models/user'); // Importăm modelul tău existent
+const User = require('../models/user'); 
+const jwt = require('jsonwebtoken'); // <--- 1. IMPORTĂM JWT
 
 // 1. REGISTER (Creare cont)
 router.post('/signup', async (req, res) => {
     try {
-        // Căutăm dacă există deja userul
         const existingUser = await User.findOne({ email: req.body.email });
         if (existingUser) {
             return res.status(400).json({ message: "Email already exists" });
         }
 
-        // Creăm userul nou
         const newUser = new User({
             email: req.body.email,
-            password: req.body.password, // Notă: Într-o aplicație reală se criptează parola
-            name: "New User", // Nume default
+            password: req.body.password, 
+            name: "New User", 
             avatarURL: "" 
         });
 
@@ -35,22 +34,32 @@ router.post('/login', async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Verificăm parola (simplu)
+        // Verificăm parola
         if (user.password !== req.body.password) {
             return res.status(400).json({ message: "Wrong password" });
         }
 
-        // Dacă e totul ok, trimitem un "bilet" (token) și datele lui
-        // Token-ul e ID-ul lui din baza de date
+        // --- SCHIMBAREA MAJORĂ ESTE AICI ---
+        
+        // Înainte trimiteai: token: user._id (Asta era greșit!)
+        // Acum creăm un TOKEN REAL semnat cu cheia secretă a serverului:
+        
+        const token = jwt.sign(
+            { _id: user._id },       // Payload (Ce date ascundem în token)
+            process.env.JWT_SECRET,  // Cheia secretă (generată în server.js)
+            { expiresIn: '1d' }      // Tokenul expiră într-o zi (opțional)
+        );
+
         res.status(200).json({ 
             message: "Login successful",
-            token: user._id, 
+            token: token, // <--- Trimitem token-ul criptat
             user: {
                 name: user.name,
                 email: user.email,
                 avatarURL: user.avatarURL
             }
         });
+
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

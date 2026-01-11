@@ -463,13 +463,39 @@ textarea { resize: none; height: 120px; }
     }
 }
 
+/* Înlocuiește stilul actual .hero-section cu acesta: */
 .hero-section {
-    text-align: center;   /* Pune textul pe mijloc */
-    display: grid;
-    grid-template-columns: 1.8fr 1fr; 
-    gap: 20px;               /* <--- Am scăzut gap-ul dintre stânga și dreapta (opțional) */
-    padding: 20px 0 10px 0;  /* <--- AICI E CHEIA: Am schimbat 40px cu 10px la final */
-    align-items: stretch;     /* Să nu fie prea lat pe ecrane mari */
+    text-align: center;
+    padding: 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Când hero-ul e empty (nu ai logat), totul centrat */
+#hero-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 0;
+}
+
+/* Când ai logat, devine grid pentru layout stânga-dreapta */
+#hero-logged {
+    display: none; /* Implicit ascuns */
+    grid-template-columns: 1.8fr 1fr;
+    gap: 24px;
+    padding: 20px 0 10px 0;
+    align-items: stretch;
+}
+
+/* Centrarea butonului */
+#hero-empty .primary-btn {
+    margin: 20px auto 0 auto;
+    display: block;
 }
 
 /* --- STILURI PENTRU HASHTAGS (Reflection Card) --- */
@@ -497,4 +523,9 @@ textarea { resize: none; height: 120px; }
     font-weight: 600 !important;   /* Semibold, ca să semene cu ora de somn */
     line-height: 1.4 !important;
     margin: 0;
+}
+
+.greeting {
+    font-weight: 700; /* Bold */
+    color: var(--blue-600); /* Aceeași culoare ca butonul */
 }

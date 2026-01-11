@@ -87,7 +87,7 @@ const getStats = async (req, res) => {
         const recentLogs = logs.slice(0, 5);    
         const previousLogs = logs.slice(5, 10); 
 
-        // 4. FUNCȚIE REPARATĂ: Forțează conversia la Number pentru a evita liniuțele (-)
+        // 4. FUNCȚIE AJUTĂTOARE
         const calculateAvg = (list, field) => {
             if (!list.length) return 0;
             const sum = list.reduce((acc, curr) => {
@@ -101,19 +101,25 @@ const getStats = async (req, res) => {
         const recentSleepAvg = calculateAvg(recentLogs, 'sleepHours');
 
         let comparison = null; 
+        let previousData = null; // <--- MODIFICARE 1: Variabilă nouă pentru a stoca datele
         
-        // 5. Logica de "gândire": comparăm doar dacă avem măcar o intrare anterioară (log-ul nr. 6)
+        // 5. Logica de comparație
         if (previousLogs.length > 0) {
             const prevMoodAvg = calculateAvg(previousLogs, 'moodScore');
             const prevSleepAvg = calculateAvg(previousLogs, 'sleepHours');
 
-            // Calcul Mood
+            // <--- MODIFICARE 2: Salvăm valorile numerice ca să le trimitem la Frontend
+            previousData = {
+                mood: prevMoodAvg,
+                sleep: prevSleepAvg
+            };
+
+            // Calcul Mood (Text pentru Fallback)
             let moodText = "Same as the previous check-ins";
-            // MODIFICARE: Adăugat "the" aici
             if (recentMoodAvg > prevMoodAvg) moodText = "Feeling better than the usual 📈"; 
             if (recentMoodAvg < prevMoodAvg) moodText = "Feeling lower than the usual 📉";
 
-            // Calcul Sleep
+            // Calcul Sleep (Text pentru Fallback)
             let sleepText = "Same as the previous check-ins";
             const sleepDiff = Number((recentSleepAvg - prevSleepAvg).toFixed(1));
             
@@ -126,18 +132,18 @@ const getStats = async (req, res) => {
             };
         }
 
-        // 6. Trimitem obiectul exact cum îl așteaptă app.js
+        // 6. Trimitem obiectul COMPLET
         res.json({
             hasEnoughData: true,
             recent: {
                 mood: recentMoodAvg,
                 sleep: recentSleepAvg
             },
+            previous: previousData, // <--- MODIFICARE 3: Trimitem datele anterioare!
             comparison: comparison 
         });
 
     } catch (error) { 
-        // ASTA RĂMÂNE! Nu șterge catch-ul!
         console.error("Stats Error:", error);
         res.status(500).json({ error: "Eroare server la statistici." });
     }

@@ -3,11 +3,18 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
+const crypto = require('crypto'); 
 
-// IMPORTĂM RUTELE 
+// --- 1. GENERARE CHEIE SECRETĂ (MUTAT AICI, LA ÎNCEPUT!) ---
+// Trebuie să fie înainte de a importa rutele, ca ele să vadă noua cheie.
+process.env.JWT_SECRET = crypto.randomBytes(64).toString('hex');
+console.log("🔒 Server securizat cu o nouă cheie (Userii vechi sunt invalidați).");
+// -----------------------------------------------------------
+
+// --- 2. IMPORTĂM RUTELE (ACUM e sigur să le importăm) ---
 const logsRouter = require('./routes/logs');
 const quotesRouter = require('./routes/quotes'); 
-const authRouter = require('./routes/auth');   
+const authRouter = require('./routes/auth');    
 const usersRouter = require('./routes/users'); 
 
 const app = express();
@@ -25,14 +32,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/moodtracker')
     .catch(err => console.error('Eroare conexiune MongoDB:', err));
 
 // ACTIVARE RUTE API
-// Când cineva accesează /api/logs -> du-te la fișierul logs.js
 app.use('/api/logs', logsRouter);
 app.use('/api/quotes', quotesRouter);
-app.use('/api/auth', authRouter);   // Login & Register
-app.use('/api/users', usersRouter); // Profil Utilizator
+app.use('/api/auth', authRouter);   
+app.use('/api/users', usersRouter); 
 
 // RUTA FINALĂ 
-// Orice altă adresă care nu e API va deschide site-ul (index.html)
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
