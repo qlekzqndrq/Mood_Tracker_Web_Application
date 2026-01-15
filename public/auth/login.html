@@ -35,7 +35,6 @@
   </div>
 
   <script>
-    // VERIFICARE INITIALA: Dacă ești logat, mergi direct la Dashboard
     document.addEventListener("DOMContentLoaded", () => {
         if(localStorage.getItem('mood_user_token')) {
             window.location.href = "../index.html";
@@ -58,10 +57,8 @@
             const data = await response.json();
             
             if (response.ok) {
-                // Curățăm orice sesiune veche
                 localStorage.clear();
                 
-                // FOLOSIM LOCALSTORAGE (pentru a păstra logarea la refresh)
                 if (data.token) {
                     localStorage.setItem('mood_user_token', data.token);
                 }
@@ -71,7 +68,6 @@
                     localStorage.setItem('mood_user_avatar', data.user.avatarURL || '');
                 }
 
-                // Redirect fără alertă (opțional poți lăsa alerta)
                 window.location.href = "../index.html"; 
             } else {
                 alert("Eroare: " + data.message);

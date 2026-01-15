@@ -1,7 +1,5 @@
 const router = require('express').Router();
 
-// --- BAZA DE DATE DE CITATE (1-5) ---
-// Acum avem mesaje specifice pentru fiecare stare
 const quotesDB = {
     // 1 = Very Sad (Foarte Trist)
     "1": [
@@ -45,18 +43,12 @@ const quotesDB = {
     ]
 };
 
-// --- RUTA CARE DĂ CITATUL ---
-// URL: /api/quotes/1, /api/quotes/5 etc.
 router.get('/:moodScore', (req, res) => {
     try {
-        // Luăm nota trimisă de site (ex: "5")
         const score = req.params.moodScore.toString();
 
-        // Verificăm dacă avem citate pentru această notă
-        // Dacă nota e invalidă (ex: 6), folosim "3" ca rezervă
         const list = quotesDB[score] || quotesDB["3"];
 
-        // Alegem un citat aleatoriu din lista acelei note
         const randomQuote = list[Math.floor(Math.random() * list.length)];
 
         res.json({ 

@@ -1,39 +1,31 @@
-/* --- 1. DEFINIREA VARIABILELOR (STYLE GUIDE) --- */
 :root {
-    /* TYPOGRAPHY */
     --font-main: 'Reddit Sans', sans-serif;
 
-    /* COLORS - NEUTRAL */
-    --neutral-900: #21214D; /* Titluri închise */
-    --neutral-600: #57577B; /* Text secundar */
+    --neutral-900: #21214D; 
+    --neutral-600: #57577B; 
     --neutral-300: #9393B7;
-    --neutral-200: #CBCDD0; /* Borduri */
-    --neutral-0:   #FFFFFF; /* Fundal carduri */
+    --neutral-200: #CBCDD0; 
+    --neutral-0:   #FFFFFF; 
 
-    /* COLORS - PRIMARY BLUE */
-    --blue-700: #2A4CD5; /* Butoane Hover */
-    --blue-600: #4865DB; /* Butoane Normal */
+    --blue-700: #2A4CD5; 
+    --blue-600: #4865DB; 
     --blue-200: #C7D3F7;
     --blue-100: #E0E6FA;
 
-    /* COLORS - MOODS */
-    --mood-very-sad: #FF9B99;  /* Red 300 */
-    --mood-sad:      #B8B1FF;  /* Indigo 200 */
-    --mood-neutral:  #89CAFF;  /* Blue 300 */
-    --mood-happy:    #89E780;  /* Green 300 */
-    --mood-very-happy: #FFC97C; /* Amber 300 */
+    --mood-very-sad: #FF9B99;  
+    --mood-sad:      #B8B1FF;  
+    --mood-neutral:  #89CAFF;  
+    --mood-happy:    #89E780;  
+    --mood-very-happy: #FFC97C; 
 
-    /* BACKGROUND GRADIENT */
     --bg-gradient: linear-gradient(180deg, #F0F4FF 0%, #D0D8FF 100%);
     
-    /* SPACING & RADIUS */
     --radius-card: 24px;
     --radius-btn: 12px;
     --radius-input: 12px;
 }
 
-/* --- 2. GLOBAL RESET --- */
-* { box-sizing: border-box; } /* CRITIC: Asigură că padding-ul nu mărește lățimea */
+* { box-sizing: border-box; } 
 
 body {
     margin: 0;
@@ -50,13 +42,11 @@ body {
     padding: 20px;
 }
 
-/* --- 3. TYPOGRAPHY --- */
 h1 { font-size: 52px; line-height: 1.2; font-weight: 700; margin: 0 0 10px 0; color: var(--neutral-900); }
 h2 { font-size: 40px; font-weight: 700; margin: 0 0 20px 0; }
 h3 { font-size: 24px; font-weight: 700; margin: 0 0 15px 0; }
 p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10px 0; }
 
-/* --- 4. NAVBAR & USER --- */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -72,11 +62,10 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
     gap: 10px; 
 }
 .logo svg {
-    height: 32px; /* Înălțime fixă pentru navbar */
-    width: auto;  /* Lățimea se ajustează automat */
+    height: 32px; 
+    width: auto;  
 }
 
-/* FIX AVATAR */
 .user-profile { 
     position: relative; 
     cursor: pointer; 
@@ -91,28 +80,28 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
     object-fit: cover; 
     border: 2px solid var(--neutral-200);
 }
-/* Stiluri pentru săgeata SVG */
+
 .chevron-icon {
-    display: block; /* Ca să nu aibă spațiu ciudat sub ea */
+    display: block; 
     width: 11px;
     height: 6px;
-    transition: transform 0.2s ease; /* Animație fină la rotire */
+    transition: transform 0.2s ease; 
 }
-/* Opțional: Rotire când meniul e deschis (Adaugă clasa .rotate din JS) */
+
 .chevron-icon.rotate {
     transform: rotate(180deg);
 }
-/* --- DROPDOWN MENU STYLING (FINAL) --- */
+
 .dropdown-menu {
     display: none;
     position: absolute;
-    top: 60px; /* Puțin mai jos de avatar */
+    top: 60px; 
     right: 0;
     background: white;
-    width: 240px; /* Mai lat ca să încapă emailul */
+    width: 240px; 
     border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(33, 33, 77, 0.15); /* Umbră fină */
-    padding: 8px; /* Spațiu mic pe margini */
+    box-shadow: 0 10px 40px rgba(33, 33, 77, 0.15); 
+    padding: 8px; 
     z-index: 100;
     border: 1px solid #F3F4F6;
     animation: fadeIn 0.2s ease-out;
@@ -140,7 +129,7 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
     font-size: 13px;
     color: var(--neutral-600);
     margin: 4px 0 0 0;
-    word-break: break-all; /* Dacă emailul e lung, îl rupe */
+    word-break: break-all; 
 }
 
 .dropdown-divider {
@@ -174,27 +163,23 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
 }
 
 .dropdown-item svg {
-    stroke: currentColor; /* Ia culoarea textului automat */
+    stroke: currentColor; 
 }
-
-/* --- LAYOUT NOU (CA ÎN IMAGINEA DE REFERINȚĂ) --- */
 
 .hero-logged-grid {
     display: grid;
-    /* Împărțim ecranul: 65% stânga, 35% dreapta */
     grid-template-columns: 1.8fr 1fr; 
     gap: 24px;
     padding: 20px 0 40px 0;
-    align-items: stretch; /* Cardurile să aibă aceeași înălțime */
+    align-items: stretch; 
 }
 
-/* Cardul mare din stânga */
 .main-mood-card {
     background: white;
     border-radius: 24px;
     padding: 40px;
     display: flex;
-    justify-content: space-between; /* Text stânga, Emoji dreapta */
+    justify-content: space-between; 
     align-items: center;
     box-shadow: 0 4px 20px rgba(33, 33, 77, 0.05);
 }
@@ -203,14 +188,12 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
     max-width: 60%;
 }
 
-/* Coloana din dreapta */
 .side-info {
     display: flex;
     flex-direction: column;
-    gap: 24px; /* Spațiu între Sleep și Reflection */
+    gap: 24px; 
 }
 
-/* Stiluri noi pentru mini-carduri ca să arate curate */
 .mini-card {
     background: white;
     padding: 30px;
@@ -219,16 +202,15 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 100%; /* Să ocupe tot spațiul disponibil */
+    height: 100%; 
 }
 
-/* Pentru mobil: revenim la o singură coloană */
 @media (max-width: 900px) {
     .hero-logged-grid {
         grid-template-columns: 1fr;
     }
     .main-mood-card {
-        flex-direction: column-reverse; /* Emoji sus pe mobil */
+        flex-direction: column-reverse; 
         text-align: center;
         padding: 20px;
     }
@@ -237,20 +219,17 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
     }
 }
 
-/* --- 6. COMPONENTS --- */
 .card, .stat-card, .chart-section {
     background: var(--neutral-0); border-radius: var(--radius-card); padding: 32px;
     box-shadow: 0 4px 20px rgba(33, 33, 77, 0.05); margin-bottom: 24px;
 }
 
-/* Modificare: Carduri mai aerisite */
 .stat-card {
     min-height: 180px; 
     display: flex; flex-direction: column; justify-content: center;
 }
 .stat-card h2 { font-size: 32px; margin: 15px 0; }
 
-/* Modificare: Grafic mai înalt */
 .chart-wrapper { height: 380px; width: 100%; }
 
 .stat-card.mood-gradient { background: linear-gradient(135deg, #E0E6FA 0%, #FFFFFF 100%); border: 1px solid var(--blue-100); }
@@ -264,10 +243,9 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
 .primary-btn:hover { background-color: var(--blue-700); }
 .full-width { width: 100%; margin-top: 20px; }
 
-/* --- 7. MODALE & WIZARD (NOU!) --- */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(33, 33, 77, 0.6); /* Backdrop întunecat */
+    background: rgba(33, 33, 77, 0.6); 
     backdrop-filter: blur(4px);
     display: none; justify-content: center; align-items: center;
     z-index: 9999;
@@ -285,7 +263,6 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
 .close-btn { position: absolute; top: 20px; right: 20px; font-size: 28px; cursor: pointer; color: var(--neutral-300); }
 .close-btn:hover { color: var(--neutral-900); }
 
-/* --- WIZARD STEPS --- */
 .progress-bar { display: flex; gap: 8px; margin-bottom: 30px; }
 .step-dash { flex: 1; height: 4px; background: #E0E6FA; border-radius: 2px; transition: background 0.3s; }
 .step-dash.active { background: var(--blue-600); }
@@ -313,7 +290,6 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
     background: var(--blue-600); border-radius: 50%;
 }
 
-/* TAGS */
 .tags-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .tag-chip {
     padding: 10px 20px; border: 1px solid var(--neutral-200); border-radius: 8px;
@@ -322,7 +298,6 @@ p { font-size: 18px; color: var(--neutral-600); line-height: 1.5; margin: 0 0 10
 .tag-chip:hover { border-color: var(--blue-600); }
 .tag-chip.selected { background: var(--blue-600); color: white; border-color: var(--blue-600); }
 
-/* INPUTS */
 input, textarea {
     width: 100%; padding: 16px; border: 1px solid var(--neutral-200);
     border-radius: var(--radius-input); font-family: var(--font-main); font-size: 16px;
@@ -332,42 +307,39 @@ input:focus, textarea:focus { border-color: var(--blue-600); border-width: 2px; 
 textarea { resize: none; height: 120px; }
 .char-count { text-align: right; font-size: 12px; color: var(--neutral-300); }
 
-/* --- MOOD CARD VARIANTS --- */
-/* Very Sad (Red) */
 .mood-card-1 {
     background: linear-gradient(135deg, #FFE4E6 0%, #FECDD3 100%);
     border: 1px solid #FECDD3;
     color: #9F1239;
 }
-/* Sad (Indigo/Purple) */
+
 .mood-card-2 {
     background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%);
     border: 1px solid #C7D2FE;
     color: #3730A3;
 }
-/* Neutral (Blue) */
+
 .mood-card-3 {
     background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
     border: 1px solid #BFDBFE;
     color: #1E40AF;
 }
-/* Happy (Green) */
+
 .mood-card-4 {
     background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
     border: 1px solid #BBF7D0;
     color: #166534;
 }
-/* Very Happy (Amber/Orange) */
+
 .mood-card-5 {
     background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
     border: 1px solid #FDE68A;
     color: #92400E;
 }
 
-/* Sleep Card e mereu la fel (Indigo Dark) */
 .sleep-card-active {
     background: linear-gradient(135deg, #4338CA 0%, #312E81 100%);
-    color: white; /* Text alb pe fundal închis */
+    color: white; 
 }
 .sleep-card-active h4, .sleep-card-active p { 
     opacity: 0.9; 
@@ -393,9 +365,9 @@ textarea { resize: none; height: 120px; }
     border-color: var(--blue-600);
 }
 
-/* --- ERROR STATES --- */
+
 .input-error {
-    border: 2px solid #EF4444 !important; /* Roșu */
+    border: 2px solid #EF4444 !important; 
     animation: shake 0.4s ease-in-out;
 }
 
@@ -403,7 +375,7 @@ textarea { resize: none; height: 120px; }
     color: #EF4444;
     font-size: 14px;
     margin-top: 5px;
-    display: none; /* Ascuns implicit */
+    display: none; 
 }
 
 @keyframes shake {
@@ -412,7 +384,6 @@ textarea { resize: none; height: 120px; }
     75% { transform: translateX(5px); }
 }
 
-/* --- RESPONSIVE --- */
 @media (max-width: 900px) {
     .dashboard-grid { grid-template-columns: 1fr; }
     .hero-logged-grid { grid-template-columns: 1fr; text-align: center; }
@@ -420,9 +391,6 @@ textarea { resize: none; height: 120px; }
     h1 { font-size: 36px; }
 }
 
-/* --- ADAUGĂ ASTA LA FINAL ÎN STYLES.CSS --- */
-
-/* Container pentru zona de avatar din setări */
 .avatar-input-group {
     display: flex;
     flex-direction: column;
@@ -430,40 +398,34 @@ textarea { resize: none; height: 120px; }
     margin-bottom: 20px;
 }
 
-/* Stilul pentru imaginea de previzualizare */
 .avatar-preview {
-    width: 120px;         /* Lățime fixă */
-    height: 120px;        /* Înălțime fixă */
-    object-fit: cover;    /* CHEIA: Taie imaginea ca să nu o deformeze */
-    border-radius: 50%;   /* O face cerc perfect */
+    width: 120px;      
+    height: 120px;       
+    object-fit: cover;    
+    border-radius: 50%;  
     border: 4px solid var(--blue-100);
     margin-bottom: 15px;
     background-color: var(--neutral-0);
     transition: border-color 0.3s ease;
 }
 
-/* Când utilizatorul dă click pe input, luminăm bordura imaginii */
 .avatar-input-group:focus-within .avatar-preview {
     border-color: var(--blue-600);
 }
 
-/* --- RESTAURARE PARTEA DE JOS (GRID) --- */
-
 .dashboard-grid { 
     display: grid; 
-    grid-template-columns: 1fr 2fr; /* 1/3 stânga, 2/3 dreapta */
+    grid-template-columns: 1fr 2fr; 
     gap: 32px; 
     margin-top: 40px; 
 }
 
-/* Ne asigurăm că pe mobil rămân una sub alta */
 @media (max-width: 900px) {
     .dashboard-grid { 
         grid-template-columns: 1fr; 
     }
 }
 
-/* Înlocuiește stilul actual .hero-section cu acesta: */
 .hero-section {
     text-align: center;
     padding: 40px 0;
@@ -473,7 +435,6 @@ textarea { resize: none; height: 120px; }
     justify-content: center;
 }
 
-/* Când hero-ul e empty (nu ai logat), totul centrat */
 #hero-empty {
     display: flex;
     flex-direction: column;
@@ -483,55 +444,49 @@ textarea { resize: none; height: 120px; }
     padding: 40px 0;
 }
 
-/* Când ai logat, devine grid pentru layout stânga-dreapta */
 #hero-logged {
-    display: none; /* Implicit ascuns */
+    display: none; 
     grid-template-columns: 1.8fr 1fr;
     gap: 24px;
     padding: 20px 0 10px 0;
     align-items: stretch;
 }
 
-/* Centrarea butonului */
 #hero-empty .primary-btn {
     margin: 20px auto 0 auto;
     display: block;
 }
 
-/* --- STILURI PENTRU HASHTAGS (Reflection Card) --- */
 .tags-display {
-    margin-top: 12px; /* Spațiu față de textul reflecției */
+    margin-top: 12px; 
     display: flex;
     flex-wrap: wrap;
-    gap: 8px; /* Spațiu între tag-uri */
+    gap: 8px; 
 }
 
 .hashtag {
     font-size: 14px;
     font-weight: 600;
-    color: var(--neutral-600); /* Griul textului secundar (#57577B) */
-    background-color: #F3F4F6; /* Un fundal foarte discret opțional */
+    color: var(--neutral-600); 
+    background-color: #F3F4F6; 
     padding: 4px 8px;
     border-radius: 6px;
 }
 
-/* --- STILIZARE REFLECTION TEXT --- */
 .reflection-text {
     font-family: var(--font-main) !important;
-    color: #21214D !important;     /* Culoare închisă */
-    font-size: 20px !important;    /* Am pus 20px ca să se vadă clar */
-    font-weight: 600 !important;   /* Semibold, ca să semene cu ora de somn */
+    color: #21214D !important;   
+    font-size: 20px !important;   
+    font-weight: 600 !important;   
     line-height: 1.4 !important;
     margin: 0;
 }
 
 .greeting {
-    font-weight: 700; /* Bold */
-    color: var(--blue-600); /* Aceeași culoare ca butonul */
+    font-weight: 700; 
+    color: var(--blue-600); 
 }
 
-/* --- GOOGLE TRANSLATE - VARIANTA SIMPLĂ --- */
-/* 1. Ascunde doar bara albastră de sus a paginii */
 .goog-te-banner-frame.skiptranslate {
     display: none !important;
 } 
@@ -539,36 +494,32 @@ body {
     top: 0px !important; 
 }
 
-/* 2. Stilizăm CUTIA butonului (Containerul) */
+
 .goog-te-gadget-simple {
-    background-color: #FFFFFF !important; /* Alb */
-    border: 2px solid #CBCDD0 !important; /* Bordura gri a site-ului tău */
-    border-radius: 12px !important;       /* Rotunjit */
-    padding: 4px 8px !important;         /* Spațiu interior */
+    background-color: #FFFFFF !important; 
+    border: 2px solid #CBCDD0 !important; 
+    border-radius: 12px !important;      
+    padding: 4px 8px !important;         
     font-size: 13px !important;
     display: flex !important;
     align-items: center !important;
     font-family: 'Reddit Sans', sans-serif !important;
 }
 
-/* 3. Când pui mouse-ul pe el -> bordură albastră */
 .goog-te-gadget-simple:hover {
     border-color: #4865DB !important;
 }
 
-/* 4. Asigură-te că link-urile din interior nu sunt albastre urâte */
 .goog-te-gadget-simple a {
     text-decoration: none !important;
-    color: #57577B !important; /* Culoarea textului tău */
+    color: #57577B !important; 
     font-weight: 600 !important;
 }
 
-/* Ascunde iconița G colorată */
 .goog-te-gadget-icon {
     display: none !important;
 }
 
-/* Ajustează textul să fie centrat după ce dispare iconița */
 .goog-te-gadget-simple {
     padding-left: 8px !important;
 }

@@ -1,7 +1,5 @@
 const API_URL = 'http://localhost:5000/api';
 
-// --- HELPER: TOKEN HEADER ---
-// Adaugă tokenul la cereri pentru ca serverul să ne dea datele
 function getAuthHeaders() {
     const token = localStorage.getItem('mood_user_token');
     return {
@@ -10,14 +8,10 @@ function getAuthHeaders() {
     };
 }
 
-// --- 0. PORTARUL (VERIFICARE LOGARE) ---
 document.addEventListener('DOMContentLoaded', () => {
     const isAuthPage = window.location.href.includes('auth/');
 
     if (!isAuthPage) {
-        // *** FIX CRITIC AICI ***
-        // Înainte era setItem (care returna undefined -> logout). 
-        // Acum e getItem (citeste tokenul -> rămâi logat).
         const token = localStorage.getItem('mood_user_token');
 
         if (!token) {
@@ -29,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 
-// --- 1. INITIALIZARE APLICAȚIE ---
 async function initApp() {
     const options = {
         weekday: 'long',
@@ -48,7 +41,6 @@ async function initApp() {
     await loadChart();
 }
 
-// --- 2. STATE MANAGEMENT ---
 let currentUser = null;
 let wizardData = {
     mood: null,
@@ -57,7 +49,6 @@ let wizardData = {
     sleep: null
 };
 
-// --- 3. USER PROFILE ---
 async function loadUserProfile() {
     try {
         const res = await fetch(`${API_URL}/users/profile`, {
@@ -66,7 +57,6 @@ async function loadUserProfile() {
             cache: 'no-store'
         });
 
-        // Dacă tokenul a expirat, delogăm curat
         if (res.status === 401) {
             logout();
             return;
@@ -121,11 +111,10 @@ function updateUserUI(name, email, avatar) {
     }
 }
 
-// --- 4. TODAY STATUS ---
 async function checkTodayStatus() {
     try {
         const res = await fetch(`${API_URL}/logs/recent`, {
-            headers: getAuthHeaders() // Adăugat Header
+            headers: getAuthHeaders() 
         });
         if (!res.ok) return;
 
@@ -150,31 +139,25 @@ async function checkTodayStatus() {
 
 function showEmptyHero() {
     const heroEmpty = document.getElementById('hero-empty');
-    // Dacă avem containerul, îl afișăm (ca să se vadă textele)
     if (heroEmpty) heroEmpty.style.display = 'flex';
 
     const heroLogged = document.getElementById('hero-logged');
     if (heroLogged) heroLogged.style.display = 'none';
 
-    // Arată butonul când nu ai logat mood-ul
     const logBtn = document.getElementById('logMoodBtn');
     if (logBtn) logBtn.style.display = 'block';
 }
 
 function showLoggedHero(log) {
-    // 1. NU mai ascundem hero-empty, îl lăsăm 'block' ca să rămână textele!
     const heroEmpty = document.getElementById('hero-empty');
     if (heroEmpty) heroEmpty.style.display = 'flex'; 
 
-    // 2. Ascundem DOAR butonul specific
     const logBtn = document.getElementById('logMoodBtn');
     if (logBtn) logBtn.style.display = 'none'; 
 
-    // 3. Afișăm cardul cu rezultate
     const heroLogged = document.getElementById('hero-logged');
     if (heroLogged) heroLogged.style.display = 'grid';
 
-    // --- Populare date (Emoji, Text, etc.) ---
     const moodMap = {
         "1": { text: "Very Sad", emoji: "😭" },
         "2": { text: "Sad", emoji: "☹️" },
@@ -196,7 +179,7 @@ function showLoggedHero(log) {
         if (log.feelings && log.feelings.length > 0) {
             log.feelings.forEach(tag => {
                 const span = document.createElement('span');
-                span.className = 'hashtag'; // Sau 'tag-chip' cum aveai înainte
+                span.className = 'hashtag'; 
                 span.innerText = `#${tag}`;
                 tagsContainer.appendChild(span);
             });
@@ -209,7 +192,7 @@ function showLoggedHero(log) {
 async function loadQuote(score) {
     try {
         const res = await fetch(`${API_URL}/quotes/${score}`, {
-            headers: getAuthHeaders() // Adăugat Header (preventiv)
+            headers: getAuthHeaders() 
         });
         if (res.ok) {
             const data = await res.json();
@@ -221,26 +204,22 @@ async function loadQuote(score) {
     }
 }
 
-// --- 5. STATISTICS ---
 async function loadStats() {
     try {
         const res = await fetch(`${API_URL}/logs/stats`, {
             headers: getAuthHeaders()
         });
 
-        // --- 👇 COD NOU: Verificare Token Expirat 👇 ---
         if (res.status === 401) {
             console.warn("Token expirat sau server restartat. Delogare...");
-            logout(); // Te trimite la Login ca să îți iei un token nou
+            logout(); 
             return;
         }
-        // ------------------------------------------------
 
         if (!res.ok) return;
 
         const data = await res.json();
 
-        // ... restul codului tău rămâne la fel ...
         console.log("DATE PRIMITE DE LA SERVER (STATS):", data);
 
         const moodCard = document.getElementById('mood-card-container');
@@ -251,9 +230,7 @@ async function loadStats() {
         moodCard.className = 'stat-card';
         sleepCard.className = 'stat-card';
 
-        // Verificăm dacă avem date "recente"
         if (!data.recent || data.hasEnoughData === false) {
-             // ... cod afișare empty state ...
             document.getElementById('mood-empty').style.display = 'block';
             document.getElementById('sleep-empty').style.display = 'block';
             document.getElementById('mood-full').style.display = 'none';
@@ -261,7 +238,6 @@ async function loadStats() {
             moodCard.classList.add('mood-gradient');
             sleepCard.classList.add('sleep-gradient');
         } else {
-             // ... cod afișare date ...
             document.getElementById('mood-empty').style.display = 'none';
             document.getElementById('sleep-empty').style.display = 'none';
             document.getElementById('mood-full').style.display = 'block';
@@ -299,20 +275,17 @@ async function loadStats() {
     }
 }
 
-// --- 6. CHART (FINAL: LUNA + ZIUA BOLD) ---
 async function loadChart() {
     try {
         const res = await fetch(`${API_URL}/logs/recent`, {
             headers: getAuthHeaders()
         });
 
-        // --- 👇 COD NOU: Protecție Logout 👇 ---
         if (res.status === 401) {
             console.warn("Token expirat la încărcarea graficului. Delogare...");
             logout(); 
             return;
         }
-        // ---------------------------------------
 
         if (!res.ok) return;
 
@@ -477,7 +450,6 @@ async function loadChart() {
     }
 }
 
-// --- 7. MODALE & WIZARD ---
 function closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(el => {
         el.style.display = 'none';
@@ -582,7 +554,6 @@ function resetWizardStyles() {
     if (cnt) cnt.innerText = "0";
 }
 
-// --- SUBMIT FINAL ---
 async function submitWizard() {
     if (!wizardData.sleep) {
         showErrorEffect('sleep-options');
@@ -599,7 +570,7 @@ async function submitWizard() {
 
         const response = await fetch(`${API_URL}/logs`, {
             method: 'POST',
-            headers: getAuthHeaders(), // TOKEN ADĂUGAT
+            headers: getAuthHeaders(), 
             body: JSON.stringify(payload)
         });
 
@@ -614,47 +585,35 @@ async function submitWizard() {
     }
 }
 
-// --- LOGOUT ---
 function logout() {
-    // 1. Șterge datele din LocalStorage (unde am salvat token-ul ca să reziste la refresh)
     localStorage.removeItem('mood_user_token');
     localStorage.removeItem('mood_username');
     localStorage.removeItem('mood_user_avatar');
 
-    // 2. Șterge și din SessionStorage (pentru siguranță)
     sessionStorage.clear();
 
-    // 3. Trimite utilizatorul la pagina de Login
-    window.location.href = "auth/login.html"; // Sau calea corectă către login.html
+    window.location.href = "auth/login.html"; 
 }
 
-// --- SETĂRI PROFIL (Fix Imagine + Update Instant) ---
 const settingsForm = document.getElementById('settingsForm');
-
-// 1. LOGICA DE PREVIZUALIZARE (Live Preview)
 const avatarInput = document.getElementById('setting-avatar');
 const avatarPreview = document.getElementById('setting-avatar-preview');
 
 if (avatarInput && avatarPreview) {
-    // Când utilizatorul scrie sau dă paste la un link
     avatarInput.addEventListener('input', (e) => {
         const val = e.target.value;
-        // Dacă e gol, punem o imagine default, altfel încercăm să încărcăm link-ul
         avatarPreview.src = val ? val : `https://ui-avatars.com/api/?name=${localStorage.getItem('mood_username')}`;
     });
 
-    // Dacă imaginea e greșită (link stricat), punem un fallback
     avatarPreview.addEventListener('error', () => {
         avatarPreview.src = "https://ui-avatars.com/api/?name=Error";
     });
 }
 
-// 2. LOGICA DE SALVARE (Submit)
 if (settingsForm) {
     settingsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // UI Feedback: Arătăm că se lucrează
         const btn = settingsForm.querySelector('button');
         const originalText = btn.innerText;
         btn.innerText = "Saving...";
@@ -664,7 +623,6 @@ if (settingsForm) {
         const avatar = document.getElementById('setting-avatar').value;
 
         try {
-            // Trimitem la server
             const res = await fetch(`${API_URL}/users/profile`, {
                 method: 'PUT',
                 headers: getAuthHeaders(),
@@ -677,19 +635,13 @@ if (settingsForm) {
             if (res.ok) {
                 const updatedUser = await res.json();
 
-                // === PASUL CRITIC PENTRU PERSISTENȚĂ ===
-
-                // A. Actualizăm "memoria" browserului
                 localStorage.setItem('mood_username', updatedUser.name);
                 localStorage.setItem('mood_user_avatar', updatedUser.avatarURL || '');
 
-                // B. Actualizăm variabila globală
                 currentUser = updatedUser;
 
-                // C. Actualizăm VIZUAL pagina imediat (fără refresh)
                 updateUserUI(updatedUser.name, updatedUser.email, updatedUser.avatarURL);
 
-                // D. Închidem fereastra
                 closeSettings();
             } else {
                 alert("Eroare la salvare.");
@@ -698,38 +650,30 @@ if (settingsForm) {
             console.error(err);
             alert("Nu s-a putut conecta la server.");
         } finally {
-            // Resetăm butonul
             btn.innerText = originalText;
             btn.disabled = false;
         }
     });
 }
 
-// textul dinamic ("Same as previous", "Better than usual")
 function getComparisonText(currentVal, previousVal, type) {
-    // Dacă nu avem istoric anterior valid, cerem date
     if (previousVal === null || previousVal === undefined) {
         return "Collecting more history...";
     }
 
-    // Calculăm diferența cu o singură zecimală
     let diff = currentVal - previousVal;
     diff = Math.round(diff * 10) / 10;
 
-    // --- FIX LOGIC: Tratăm 0 ca "Stable" nu ca eroare ---
     if (diff === 0) {
         return "Stable (same as previous)";
     }
 
-    // Text pentru MOOD
     if (type === 'mood') {
         if (diff > 0) return "Feeling better than usual 📈";
         return "Feeling lower than usual 📉";
     }
 
-    // Text pentru SLEEP
     if (type === 'sleep') {
-        // Adăugăm semnul + explicit dacă e pozitiv
         const sign = diff > 0 ? "+" : ""; 
         return `${sign}${diff}h vs previous check-ins`;
     }

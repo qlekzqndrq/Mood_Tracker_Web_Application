@@ -1,8 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/user'); 
-const jwt = require('jsonwebtoken'); // <--- 1. IMPORTĂM JWT
+const jwt = require('jsonwebtoken'); 
 
-// 1. REGISTER (Creare cont)
 router.post('/signup', async (req, res) => {
     try {
         const existingUser = await User.findOne({ email: req.body.email });
@@ -24,35 +23,27 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-// 2. LOGIN (Autentificare)
 router.post('/login', async (req, res) => {
     try {
-        // Căutăm userul după email
         const user = await User.findOne({ email: req.body.email });
         
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Verificăm parola
         if (user.password !== req.body.password) {
             return res.status(400).json({ message: "Wrong password" });
         }
-
-        // --- SCHIMBAREA MAJORĂ ESTE AICI ---
-        
-        // Înainte trimiteai: token: user._id (Asta era greșit!)
-        // Acum creăm un TOKEN REAL semnat cu cheia secretă a serverului:
-        
+    
         const token = jwt.sign(
-            { _id: user._id },       // Payload (Ce date ascundem în token)
-            process.env.JWT_SECRET,  // Cheia secretă (generată în server.js)
-            { expiresIn: '1d' }      // Tokenul expiră într-o zi (opțional)
+            { _id: user._id },      
+            process.env.JWT_SECRET,  
+            { expiresIn: '1d' }      
         );
 
         res.status(200).json({ 
             message: "Login successful",
-            token: token, // <--- Trimitem token-ul criptat
+            token: token, 
             user: {
                 name: user.name,
                 email: user.email,

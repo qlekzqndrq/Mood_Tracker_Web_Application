@@ -1,9 +1,6 @@
-const mongoose = require('mongoose'); //importare librarie mongoose
+const mongoose = require('mongoose'); 
 
-//definim schema
 const dailyLogSchema = new mongoose.Schema({
-    //definire cheie straina
-    //legatura catre celalalt document se face prin cheia "ref"
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -20,8 +17,8 @@ const dailyLogSchema = new mongoose.Schema({
         min: 1,
         max: 5
     },
-    feelings: {type: [String]}, //lista cu diferite stari
-    journalEntry: {type: String, default: ''}, //textbox 
+    feelings: {type: [String]}, 
+    journalEntry: {type: String, default: ''}, 
     sleepHours: {
         type: Number, 
         required: true, 

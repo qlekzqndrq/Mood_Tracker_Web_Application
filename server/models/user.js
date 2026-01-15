@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
         default: 'default_avatar.png'
     }
 }, {
-    timestamps: true //adauga automat createdAt si updatedAt
+    timestamps: true 
 });
 
 module.exports = mongoose.model('User', userSchema);
